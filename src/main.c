@@ -71,7 +71,7 @@ void joyCallback(u16 joy, u16 changed, u16 state) {
             key_pressed = DOWN;
         } else if (~controller_state & controller_changed & BUTTON_UP) {
             key_pressed = UP;
-        } else if (~controller_state & controller_changed & BUTTON_START) {
+        } else if (~controller_state & controller_changed & BUTTON_BTN) {
             key_pressed = START;
         }
         controller_state = state;
