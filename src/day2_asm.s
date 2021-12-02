@@ -7,44 +7,51 @@
 * d2: current horizontal position
 * d3: current character read
 * d4: temporary
+* d5: constant '0'
+* d6: constant 'd'
+* d7: constant 'f'
 **************************************
 
     .globl day2_asm
 day2_asm:
-    movem.l d2-d4, -(sp)
+    movem.l d2-d7, -(sp)
     move.l &DAY2_INPUT, a0
     move.l &DAY2_INPUT_END - 1, a1
     moveq #0, d0
     moveq #0, d1
     moveq #0, d2
     moveq #0, d3
+    ;// use additional registers to store constants since it's a bit faster than using immediates
+    move.b #'0', d5
+    move.b #'d', d6
+    move.b #'f', d7
 read_line:
     cmp.l a0, a1 ;// have we reached the end of the input?
     bls.s done ;// if so, branch
     move.b (a0)+, d3 ;// read first letter
-    cmp.b #'d', d3 ;// is it down?
+    cmp.b d6, d3 ;// is it down?
     beq.s down ;// if so, branch
-    cmp.b #'f', d3 ;// is it forward?
+    cmp.b d7, d3 ;// is it forward?
     beq.s forward ;// if so, branch
 up: ;// if we haven't branched yet, it's up
     addq.l #2, a0 ;// skip forward to the digit
     move.b (a0)+, d3 ;// read digit
     addq.l #1, a0 ;// skip newline
-    sub.b #'0', d3 ;// convert from ascii to digit
+    sub.b d5, d3 ;// convert from ascii to digit
     sub.w d3, d0 ;// update depth
     bra.s read_line
 down:
     addq.l #4, a0 ;// skip forward to the digit
     move.b (a0)+, d3 ;// read digit
     addq.l #1, a0 ;// skip newline
-    sub.b #'0', d3 ;// convert from ascii to digit
+    sub.b d5, d3 ;// convert from ascii to digit
     add.w d3, d0 ;// update depth
     bra.s read_line
 forward:
     addq.l #7, a0 ;// skip forward to the digit
     move.b (a0)+, d3 ;// read digit
     addq.l #1, a0 ;// skip newline
-    sub.b #'0', d3 ;// convert from ascii to digit
+    sub.b d5, d3 ;// convert from ascii to digit
     add.w d3, d2 ;// update horizontal position
     move.l d0, d4 ;// it is possible to do that without d4, using d3 instead of d4 to store the mulu result
     ;// but having d3 as the source operand is optimal here
@@ -62,5 +69,5 @@ done:
     swap d3 ;// We need to multiply the result by 65536
     mulu.w d2, d1 ;// part2 result (bottom 16 bits)
     add.l d3, d1 ;// add the top 16 bits to it
-    movem.l (sp)+, d2-d4
+    movem.l (sp)+, d2-d7
     rts
