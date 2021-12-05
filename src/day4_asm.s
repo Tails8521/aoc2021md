@@ -60,34 +60,78 @@ fill_loop: ;// initialize the markers at 0
     .endr
     dbf d3, fill_loop
     
+    move.l d2, d4
+    addq.w #1, d4
+    moveq #0, d5
     ;// We parsed everything from the input and everything important is in RAM
     ;// Variables at this point:
     ;// a0: pointer to the bingo numbers array
     ;// a1: pointer to the bingo boards array
     ;// a2: pointer to the bingo boards marker array: 0 = not marked, 1 = marked
     ;// d2: how many boards we have - 1
+    ;// d4: how many boards remaining to win
+    ;// d5: have we found a winner yet?
 draw_number:
     move.b (a0)+, d1
     move.l a1, a3
     move.l a2, a4
     move.l d2, d7
 loop_boards: ;// fill the markers for the drawn number
+    tst.b (a3) ;// has this board already won?
+    blt skip_draw_number_board ;// if so, skip drawing the number for it
     jsr draw_number_board
+continue_skip_draw_number_board:
     dbf d7, loop_boards
     move.l a1, a3
     move.l a2, a4
     move.l d2, d7
 loop_boards_victory: ;// check the markers for victory
     move.l a4, a6 ;// backup of the pointer to the current marker array
+    tst.b (a3) ;// has this board already won?
+    blt skip_check_victory_board ;// if so, skip checking if it won
     jsr check_victory_board
     beq.s found_winner
+continue_skip_check_victory_board:
+continue_found_winner:
     add.l #25, a3 ;// point to next board
     dbf d7, loop_boards_victory
     bra.s draw_number
+
 found_winner:
+    ;// Fixes up a4 since check_victory_board returns early if it finds a winner
+    move.l a6, a4
+    add.l #25, a4
+
+    tst.b d5 ;// was there a winner already?
+    beq.s first_winner
+continue_first_winner:
+    subq.w #1, d4
+    beq.s last_winner
+    move.b #-1, (a3) ;// mark the board as already won
+    bra.s continue_found_winner
+last_winner:
     jsr calculate_winning_score
+    move.w d0, d1
+    move.w d6, d0
     movem.l (sp)+, d2-d7/a2-a6
     rts
+
+first_winner:
+    moveq #1, d5
+    movem.l d2/a3/a6, -(sp)
+    jsr calculate_winning_score
+    movem.l (sp)+, d2/a3/a6
+    move.w d0, d6 ;// stash the first winner (for part 1) in d6
+    bra.s continue_first_winner
+
+skip_draw_number_board:
+    add.l #25, a3 ;// point to next board
+    add.l #25, a4 ;// points to next board
+    bra.s continue_skip_draw_number_board
+
+skip_check_victory_board:
+    add.l #25, a4 ;// points to next board
+    bra.s continue_skip_check_victory_board
 
 **************************************
 * input: d1
@@ -120,7 +164,7 @@ check_victory_board:
             sub.b (a4), d0
             addq.l #5, a4
         .endr
-        bne.s 1f ;// do we still have at least number that isn't marked?
+        bne.s 1f ;// do we still have at least a number that isn't marked?
         rts ;// we don't, return
     1: ;// we do, check the next column
         sub.l #(25-1), a4
@@ -132,7 +176,7 @@ check_victory_board:
         .rept 5
             sub.b (a4)+, d0
         .endr
-        bne.s 1f ;// do we still have at least number that isn't marked?
+        bne.s 1f ;// do we still have at least a number that isn't marked?
         rts ;// we don't, return
     1: ;// we do, check the next line
     .endr
@@ -143,7 +187,7 @@ check_victory_board:
 * input: d1, last drawn number
 * input: a3, pointer to the winning bingo board array
 * input: a6, pointer to the winning bingo board marker array: 0 = not marked, 1 = marked
-* clobbered: 
+* clobbered: d2
 **************************************
 calculate_winning_score:
     moveq #0, d0
