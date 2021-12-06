@@ -2,10 +2,11 @@
 #define _DAY6_H_
 
 #include <genesis.h>
+#include <utils.h>
 
 typedef struct {
-    u32 part1;
-    u32 part2;
+    u64 part1;
+    u64 part2;
 } day6_answers;
 
 void day6();
