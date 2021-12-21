@@ -5,7 +5,7 @@ day3_asm:
     move.l a0, a1
     move.l sp, a2
     moveq #0, d0
-    move.b #'\n', d6
+    moveq #'\n', d6
     ;// calculate the length of a line
 line_len_calc:
     addq.w #1, d0
@@ -27,7 +27,7 @@ array_init_loop: ;// fill the array with zeroes
     move.l d1, d4
     subq.w #1, d4 ;// remove 1 for dbf adjust
 
-    move.b #'0', d6
+    moveq #'0', d6
 read_line:
     move.l d0, d2 ;// reset back the inner loop counter
     move.l sp, a1 ;// move the pointer to the front of the array

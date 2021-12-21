@@ -93,14 +93,14 @@ loop_boards_victory: ;// check the markers for victory
     beq.s found_winner
 continue_skip_check_victory_board:
 continue_found_winner:
-    add.l #25, a3 ;// point to next board
+    lea 25(a3), a3 ;// point to next board
     dbf d7, loop_boards_victory
     bra.s draw_number
 
 found_winner:
     ;// Fixes up a4 since check_victory_board returns early if it finds a winner
     move.l a6, a4
-    add.l #25, a4
+    lea 25(a4), a4
 
     tst.b d5 ;// was there a winner already?
     beq.s first_winner
@@ -125,12 +125,12 @@ first_winner:
     bra.s continue_first_winner
 
 skip_draw_number_board:
-    add.l #25, a3 ;// point to next board
-    add.l #25, a4 ;// points to next board
+    lea 25(a3), a3 ;// point to next board
+    lea 25(a4), a4 ;// point to next board
     bra.s continue_skip_draw_number_board
 
 skip_check_victory_board:
-    add.l #25, a4 ;// points to next board
+    lea 25(a4), a4 ;// point to next board
     bra.s continue_skip_check_victory_board
 
 **************************************

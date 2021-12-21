@@ -22,9 +22,9 @@ day2_asm:
     moveq #0, d2
     moveq #0, d3
     ;// use additional registers to store constants since it's a bit faster than using immediates
-    move.b #'0', d5
-    move.b #'d', d6
-    move.b #'f', d7
+    moveq #'0', d5
+    moveq #'d', d6
+    moveq #'f', d7
 read_line:
     cmp.l a0, a1 ;// have we reached the end of the input?
     bls.s done ;// if so, branch
