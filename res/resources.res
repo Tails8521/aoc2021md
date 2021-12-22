@@ -1,5 +1,5 @@
-IMAGE  snowflake_image  "tiles/snowflake.bmp" NONE
-SPRITE  candycane_sprite    "sprites/candycane.bmp" 1 4 NONE 0
+IMAGE  aoc2021bg  "tiles/aoc2021bg.png" NONE
+SPRITE  fish_sprite    "sprites/fish.png" 4 3 NONE 0
 BIN  DAY1_INPUT  "inputs/day1.input" 1 1 0 NONE TRUE
 BIN  DAY1_INPUT_END  "dummy" 1 1 0 NONE TRUE
 BIN  DAY2_INPUT  "inputs/day2.input" 1 1 0 NONE TRUE
